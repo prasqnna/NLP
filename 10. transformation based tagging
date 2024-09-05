@@ -1,0 +1,19 @@
+sentence = "The dog barks loudly in the park"
+words = sentence.lower().split()
+initial_tags = [(word, 'NOUN') for word in words]
+rules = [
+    ('barks', 'NOUN', 'VERB'),    
+    ('loudly', 'NOUN', 'ADV'),    
+    ('the', 'NOUN', 'DET'),      
+    ('in', 'NOUN', 'PREP'),       
+]
+tagged_sentence = []
+for word, initial_tag in initial_tags:
+    final_tag = initial_tag
+    for rule_word, old_tag, new_tag in rules:
+        if word == rule_word and initial_tag == old_tag:
+            final_tag = new_tag
+            break
+    tagged_sentence.append((word, final_tag))
+print("Initial Tags:", initial_tags)
+print("Transformed Tags:", tagged_sentence)
