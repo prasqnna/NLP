@@ -1,0 +1,22 @@
+import random
+import re
+text = "I love to write code. I love to learn new things. I write code every day."
+text = text.lower()
+text = re.sub(r'[^\w\s]', '', text)  
+words = text.split()
+bigrams = {}
+for i in range(len(words) - 1):
+    if words[i] not in bigrams:
+        bigrams[words[i]] = []
+    bigrams[words[i]].append(words[i + 1])
+current_word = random.choice(words)
+generated_text = [current_word]
+
+for _ in range(14):  
+    next_words = bigrams.get(current_word, [])
+    if not next_words:
+        break 
+    current_word = random.choice(next_words)
+    generated_text.append(current_word)
+
+print("Generated Text:", ' '.join(generated_text))
