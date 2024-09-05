@@ -1,0 +1,30 @@
+import random
+corpus = [
+    ('I', 'PRON'), ('love', 'VERB'), ('to', 'PRT'), ('write', 'VERB'),
+    ('code', 'NOUN'), ('I', 'PRON'), ('learn', 'VERB'), ('new', 'ADJ'),
+    ('things', 'NOUN')
+]
+emission_probs = {
+    'PRON': {'I': 1.0}, 
+    'VERB': {'love': 0.5, 'write': 0.25, 'learn': 0.25}, 
+    'PRT': {'to': 1.0}, 
+    'NOUN': {'code': 0.5, 'things': 0.5}, 
+    'ADJ': {'new': 1.0}
+}
+transition_probs = {
+    'PRON': {'VERB': 1.0},
+    'VERB': {'PRT': 0.5, 'NOUN': 0.5},
+    'PRT': {'VERB': 1.0},
+    'NOUN': {'PRON': 1.0},
+    'ADJ': {'NOUN': 1.0}
+}
+sentence = ['I', 'love', 'to', 'learn', 'new', 'things']
+pos_sequence = ['PRON']
+for i in range(1, len(sentence)):
+    prev_tag = pos_sequence[-1]
+    word = sentence[i]
+    best_tag = max(emission_probs.keys(), key=lambda tag: emission_probs[tag].get(word, 0) * transition_probs[prev_tag].get(tag, 0))
+    pos_sequence.append(best_tag)
+
+print("Sentence:", ' '.join(sentence))
+print("POS Tags:", ' '.join(pos_sequence))
