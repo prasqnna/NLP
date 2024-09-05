@@ -1,0 +1,12 @@
+import nltk
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+nltk.download('wordnet')
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+words = ["running", "jumps", "easily", "cats", "studies"]
+print("Stemming:")
+for word in words:
+    print(f"{word} -> {stemmer.stem(word)}")
+print("\nLemmatization:")
+for word in words:
+    print(f"{word} -> {lemmatizer.lemmatize(word)}")
