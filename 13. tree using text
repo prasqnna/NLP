@@ -1,0 +1,27 @@
+import nltk
+from nltk import CFG
+from nltk.parse.chart import ChartParser
+
+# Define a context-free grammar (CFG)
+grammar = CFG.fromstring("""
+    S -> NP VP
+    NP -> Det N | Det N PP
+    VP -> V NP | V NP PP
+    PP -> P NP
+    Det -> 'the' | 'a'
+    N -> 'cat' | 'dog' | 'telescope' | 'park'
+    V -> 'saw' | 'chased'
+    P -> 'in' | 'with'
+""")
+
+# Define the sentence to parse
+sentence = "the cat saw a dog".split()
+
+# Create a parser using the defined CFG
+parser = ChartParser(grammar)
+
+# Parse the sentence and generate the parse tree(s)
+for tree in parser.parse(sentence):
+    print(tree)
+    tree.pretty_print()  # Display the tree structure
+    tree.draw()  # Visualize the tree (opens in a separate window)
