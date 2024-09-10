@@ -1,0 +1,90 @@
+# Global variables for the parser state
+grammar = {}
+chart = []
+tokens = []
+
+def init_parser(grammar_rules):
+    global grammar, chart
+    grammar = grammar_rules
+    chart = [[] for _ in range(len(tokens) + 1)]
+
+def parse(tokens_list):
+    global tokens
+    tokens = tokens_list
+    init_parser({
+        'S': [['NP', 'VP']],
+        'NP': [['Det', 'N']],
+        'VP': [['V', 'NP']],
+        'Det': [['the']],
+        'N': [['cat'], ['dog']],
+        'V': [['chased'], ['saw']]
+    })
+
+    chart[0].append(("S'", ["S"], 0, 0))  # Start state
+
+    for i in range(len(tokens) + 1):
+        for state in chart[i]:
+            if is_complete(state):
+                complete(state, i)
+            elif not is_complete(state) and next_symbol(state) in grammar:
+                predict(state, i)
+            elif not is_complete(state) and i < len(tokens) and next_symbol(state) == tokens[i]:
+                scan(state, i)
+
+    # Check if the start state has been fully parsed
+    for state in chart[len(tokens)]:
+        if state == ("S'", ["S"], 1, 0):
+            return True
+    return False
+
+def is_complete(state):
+    _, rule, dot, _ = state
+    return dot >= len(rule)
+
+def next_symbol(state):
+    _, rule, dot, _ = state
+    if dot < len(rule):
+        return rule[dot]
+    return None
+
+def predict(state, index):
+    _, rule, dot, _ = state
+    next_symbol = rule[dot]
+    for production in grammar.get(next_symbol, []):
+        new_state = (next_symbol, production, 0, index)
+        if new_state not in chart[index]:
+            chart[index].append(new_state)
+
+def scan(state, index):
+    _, rule, dot, start = state
+    next_symbol = rule[dot]
+    if index < len(chart) - 1 and tokens[index] == next_symbol:
+        new_state = (state[0], state[1], dot + 1, start)
+        chart[index + 1].append(new_state)
+
+def complete(state, index):
+    left, rule, dot, start = state
+    for prev_state in chart[start]:
+        if not is_complete(prev_state) and next_symbol(prev_state) == left:
+            new_state = (prev_state[0], prev_state[1], prev_state[2] + 1, prev_state[3])
+            if new_state not in chart[index]:
+                chart[index].append(new_state)
+
+# Example usage
+if __name__ == "__main__":
+    grammar_rules = {
+        'S': [['NP', 'VP']],
+        'NP': [['Det', 'N']],
+        'VP': [['V', 'NP']],
+        'Det': [['the']],
+        'N': [['cat'], ['dog']],
+        'V': [['chased'], ['saw']]
+    }
+
+    sentence = "the cat chased the dog".split()
+    init_parser(grammar_rules)
+
+    if parse(sentence):
+        print("The sentence is valid according to the grammar.")
+    else:
+        print("The sentence is not valid according to the grammar.")
