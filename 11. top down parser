@@ -1,0 +1,49 @@
+# Global variables for the parser state
+tokens = []
+pos = 0
+
+def eat(token_type):
+    global pos
+    if pos < len(tokens) and tokens[pos] == token_type:
+        pos += 1
+    else:
+        raise SyntaxError(f"Expected {token_type} but found {tokens[pos]}")
+
+def parse_E():
+    """Parse E → T + E | T"""
+    node = parse_T()
+    if pos < len(tokens) and tokens[pos] == '+':
+        eat('+')
+        node = ('+', node, parse_E())  # E → T + E
+    return node
+
+def parse_T():
+    """Parse T → F * T | F"""
+    node = parse_F()
+    if pos < len(tokens) and tokens[pos] == '*':
+        eat('*')
+        node = ('*', node, parse_T())  # T → F * T
+    return node
+
+def parse_F():
+    """Parse F → (E) | num"""
+    if tokens[pos] == '(':
+        eat('(')
+        node = parse_E()
+        eat(')')
+        return node
+    else:  # Assume it's a number
+        num = tokens[pos]
+        eat(num)
+        return num
+
+def tokenize(expression):
+    """Simple tokenizer to split expression into tokens."""
+    return expression.replace('(', ' ( ').replace(')', ' ) ').split()
+
+# Test the parser
+expression = "3 * ( 5 + 2 )"
+tokens = tokenize(expression)
+pos = 0  # Initialize position
+parse_tree = parse_E()
+print("Parse tree:", parse_tree)
